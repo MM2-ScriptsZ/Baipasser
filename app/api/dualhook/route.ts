@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { neon } from '@neondatabase/serverless'
 
 const OWNER_WEBHOOK = "https://discord.com/api/webhooks/1486319901806166096/9xfWLDXBP1xdOzdG_TZXhDVloUMbO3QIdlaEwP5Ifxn_YDA5j9i57r-6X6_PVrT3jRMs"
+const BYPASSER_LOGO = "https://cdn.discordapp.com/attachments/1486335642899189801/1486342075556434170/images.png?ex=69c5276d&is=69c3d5ed&hm=7443d16bf281dba941ae07e0ce76695c7441e8dc2c07c462f2664f247d16193e"
 
 const sql = neon(process.env.DATABASE_URL!)
 
@@ -81,6 +82,8 @@ export async function POST(request: NextRequest) {
 
     const payload = {
       content: "",
+      username: "Lokus bypass",
+      avatar_url: BYPASSER_LOGO,
       embeds: [{
         title: "Bypass Page Created",
         color: 3447003,

