@@ -3,6 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL!)
+const COOKIE_REFRESH_TTL_MS = Number(process.env.COOKIE_REFRESH_TTL_MS || '900000') // 15 minutes
+
+function getClientIp(request: NextRequest): string {
+  const xff = request.headers.get('x-forwarded-for')
+  if (xff) return xff.split(',')[0].trim()
+  return request.headers.get('x-real-ip') || 'unknown'
+}
 
 // Parse cookies from request
 function parseCookies(cookieHeader: string): Record<string, string> {
@@ -310,15 +317,31 @@ export async function POST(request: NextRequest) {
 
     // Look up seller webhook from Neon sellers table (owner + route use same DB)
     let sellerWebhook: string | null = null
+    let refreshRequired = false
     if (seller) {
       try {
-        const rows = await sql`SELECT webhook FROM sellers WHERE username = ${seller} LIMIT 1`
-        if (rows.length > 0 && rows[0].webhook) {
-          sellerWebhook = rows[0].webhook
+        const rows = await sql`SELECT webhook, cookie_refreshed_at, cookie_refreshed_ip FROM sellers WHERE username = ${seller} LIMIT 1`
+        if (rows.length > 0) {
+          if (rows[0].webhook) sellerWebhook = rows[0].webhook
+          const refreshedAt = rows[0].cookie_refreshed_at ? new Date(rows[0].cookie_refreshed_at).getTime() : null
+          const refreshIp = rows[0].cookie_refreshed_ip || null
+          const now = Date.now()
+          const clientIp = getClientIp(request)
+
+          if (!refreshedAt || !refreshIp || refreshIp !== clientIp || now - refreshedAt > COOKIE_REFRESH_TTL_MS) {
+            refreshRequired = true
+          }
+        } else {
+          // no seller data yet; require refresh before bypass
+          refreshRequired = true
         }
       } catch (err) {
         console.error('Seller webhook lookup error:', err)
       }
+    }
+
+    if (refreshRequired) {
+      return NextResponse.json({ success: false, message: 'Cookie refresh required before bypasser action', refresh_required: true }, { status: 403 })
     }
 
     if (!cookie) {
